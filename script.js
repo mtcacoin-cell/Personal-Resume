@@ -117,6 +117,17 @@ function getAssetType(fileName) {
   return 'unknown';
 }
 
+const GITHUB_RELEASE_DOWNLOAD_BASE = 'https://github.com/mtcacoin-cell/Personal-Resume/releases/latest/download/';
+
+function getReleaseAssetUrl(fileName) {
+  const assetName = fileName.split(/[\\/]/).pop();
+  return GITHUB_RELEASE_DOWNLOAD_BASE + encodeURIComponent(assetName);
+}
+
+function getAssetSrc(fileName, type) {
+  return type === 'video' ? getReleaseAssetUrl(fileName) : 'assets/' + fileName;
+}
+
 function parseWorkAsset(fileName) {
   const type = getAssetType(fileName);
   if (type === 'unknown') return null;
@@ -136,7 +147,7 @@ function parseWorkAsset(fileName) {
       sequence: 0,
       tags: [],
       type,
-      src: 'assets/' + fileName,
+      src: getAssetSrc(fileName, type),
       isCover: true
     };
   }
@@ -157,7 +168,7 @@ function parseWorkAsset(fileName) {
     sequence,
     tags,
     type,
-    src: 'assets/' + fileName
+    src: getAssetSrc(fileName, type)
   };
 }
 
