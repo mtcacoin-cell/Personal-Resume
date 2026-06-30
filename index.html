@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LEI YONG · 游戏世界 · AI 解决方案</title>
+  <meta name="description" content="LEI YONG 个人简介 — Unity / Unreal Engine 场景地编开发，AI 标准化工作流解决方案。" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <header class="nav" id="top">
+    <div class="nav__inner">
+      <a class="brand" href="#top">
+        <span class="brand__logo" aria-hidden="true">
+          <svg viewBox="0 0 48 48" width="40" height="40">
+            <polygon points="24,2 28,20 46,24 28,28 24,46 20,28 2,24 20,20"
+                     fill="url(#g)"/>
+            <defs>
+              <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#f5a623"/>
+                <stop offset="1" stop-color="#f76b1c"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
+        <span class="brand__text">
+          <strong>LEI YONG</strong>
+          <small>游戏世界 · AI 解决方案</small>
+        </span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="#intro" class="active">个人简介</a>
+        <a href="#scenes">场景作品</a>
+        <a href="#ai">AI解决案例</a>
+        <a href="#resume">简历</a>
+        <a href="#contact">联系我</a>
+      </nav>
+      <button class="nav__toggle" id="navToggle" aria-label="菜单">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- 主视觉 Hero -->
+    <section class="hero" id="intro">
+      <div class="hero__media">
+        <video class="hero__video" id="heroVideo"
+               muted loop playsinline preload="metadata"
+               poster="assets/hero-poster.png">
+          <source src="assets/hero.mp4" type="video/mp4" />
+        </video>
+        <div class="hero__overlay"></div>
+      </div>
+      <div class="hero__content">
+        <p class="hero__hi">您好，我是</p>
+        <h1 class="hero__name" aria-label="LEI YONG 雷勇">
+          <span class="hero__name-en">LEI YONG</span>
+          <span class="hero__name-cn">雷勇</span>
+        </h1>
+        <h2 class="hero__role">
+          Unity / Unreal Engine 场景地编开发<br />
+          AI 标准化工作流解决方案
+        </h2>
+        <p class="hero__desc">
+          核心业务聚焦 Unity、Unreal Engine 场景地编开发，专注以人工智能技术搭建跨领域标准化工作管线；
+          整合三维内容制作、游戏环境搭建、动态智能体驱动产出能力，打造一站式生成式内容生产体系，
+          实现数字内容生产链路的降本增效与流程革新。
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="#scenes">查看场景作品</a>
+          <a class="btn btn--ghost" href="#ai">查看 AI 解决案例</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 精选场景作品 + 关于我 -->
+    <section class="section scene-showcase" id="scenes">
+      <div class="wrap grid-2 grid-2--showcase">
+        <div class="scene-showcase__main">
+          <div class="section__head section__head--scene">
+            <div>
+              <h2 class="section__title section__title--scene">精选场景作品</h2>
+              <p class="section__sub">探索虚拟世界的无限可能</p>
+            </div>
+            <a class="section__more" href="scenes.html#scene-cases">查看全部场景 →</a>
+          </div>
+          <div class="cards cards--featured" id="sceneCards"></div>
+        </div>
+
+        <!-- 关于我 -->
+        <aside class="about about--showcase">
+          <h2 class="section__title about__title">关于我 <span>✦</span></h2>
+          <div class="about__avatar">
+            <img src="assets/avatar.jpg" alt="LEI YONG" loading="lazy"
+                 onerror="this.classList.add('img--ph')" />
+          </div>
+          <p class="about__text">
+            具备扎实且丰富的游戏场景地编开发实战经验，精通 PBR 材质全流程搭建与性能制作；
+            拥有成熟的美术标准体系与高效协同生产能力，可独立驱动 AI 工具解决全流程各类生产难题，
+            兼任智能 Agent 体系实现数字内容全链路生产效率大幅提升。
+          </p>
+          <a class="btn btn--primary btn--block" href="#resume">查看完整介绍 →</a>
+          <div class="about__features" aria-label="个人优势">
+            <span>高效协同</span>
+            <span>AI 赋能</span>
+            <span>品质驱动</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- AI 解决案例 + Expertise -->
+    <section class="section section--alt ai-showcase" id="ai">
+      <div class="wrap grid-2 grid-2--ai">
+        <div class="ai-showcase__main">
+          <div class="section__head section__head--ai">
+            <div>
+              <h2 class="section__title section__title--ai">AI解决案例</h2>
+              <p class="section__sub">展示生成式内容与 AI 工作流落地案例</p>
+            </div>
+            <a class="section__more" href="scenes.html#ai-cases">查看全部案例 →</a>
+          </div>
+          <div class="ai-tabs" aria-label="AI案例分类">
+            <span class="ai-tab active">全部</span>
+            <span class="ai-tab">视频展示</span>
+            <span class="ai-tab">3D复刻</span>
+            <span class="ai-tab">展厅交互</span>
+            <span class="ai-tab">平台物料</span>
+          </div>
+          <div class="cards cards--ai-featured" id="aiCards"></div>
+        </div>
+
+        <!-- Expertise & Tools -->
+        <div class="side-stack">
+          <aside class="tools">
+            <h2 class="tools__title">Expertise &amp; Tools</h2>
+            <div class="tools__group">
+              <h3 class="tools__label">◆ Game Environment</h3>
+              <div class="tags">
+                <span class="tag">3ds Max</span><span class="tag">Unity</span>
+                <span class="tag">UES</span><span class="tag">Substance 3D Suite</span>
+                <span class="tag">ZBrush</span><span class="tag">World Creator</span>
+                <span class="tag">SpeedTree</span><span class="tag">Marmoset Toolbag</span>
+              </div>
+            </div>
+            <div class="tools__group">
+              <h3 class="tools__label">◆ AI Creative</h3>
+              <div class="tags">
+                <span class="tag">Seedance 2.0</span><span class="tag">Claude</span>
+                <span class="tag">Image 2.0</span><span class="tag">Rodia 3D</span>
+                <span class="tag">Runway</span>
+              </div>
+            </div>
+          </aside>
+          <aside class="project-experience">
+            <h2 class="project-experience__title">项目经验</h2>
+            <ul class="project-experience__list">
+              <li><strong>IGG</strong><span>《城堡争霸》《神之翼》《星际传说》</span></li>
+              <li><strong>心动网络</strong><span>《仙境传说 RO》《盖世英雄》《创想世界》</span></li>
+              <li><strong>完美时空</strong><span>《Project-bard》回合 3D 卡牌项目</span></li>
+              <li><strong>百度</strong><span>文旅、展厅、H5 小游戏、AIGC 工具与智能 Agent</span></li>
+            </ul>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- 简历 -->
+    <section class="section" id="resume">
+      <div class="wrap">
+        <div class="section__head">
+          <h2 class="section__title">简历</h2>
+        </div>
+        <div class="resume">
+          <div class="resume__col">
+            <h3 class="resume__h">工作经历</h3>
+            <ul class="resume__list">
+              <li>2022/11 - 至今：百度 TA组 & 地编，统筹外包管理、美术质量把控、业务对接与团队协作。</li>
+              <li>2020/09 - 2022/02：上海完美时空 3D地编组长，负责 PBR 流程、外包需求、场景标杆与性能优化。</li>
+              <li>2018/11 - 2020/08：上海方趣科技 3D主美，负责团队组建、流程管理和核心场景编辑。</li>
+              <li>2010/07 - 2018/04：IGG / 心动网络，参与多款 2.5D、低模手游、SLG 与沙盒项目场景制作。</li>
+            </ul>
+          </div>
+          <div class="resume__col">
+            <h3 class="resume__h">擅长方向</h3>
+            <ul class="resume__list">
+              <li>PBR 标准化 3D 资产生产流程，独立完成场景建模、材质与贴图输出。</li>
+              <li>Unity 场景地编、运行性能优化、Shader 与多渲染管线场景方案定制。</li>
+              <li>UE5 地形工具、材质蓝图、环境灯光系统与完整游戏场景搭建。</li>
+              <li>多模态 AIGC 视频、图像、模型生成，以及智能 Agent 与 WebGL Demo 开发。</li>
+            </ul>
+          </div>
+          <div class="resume__col">
+            <h3 class="resume__h">教育背景</h3>
+            <ul class="resume__list">
+              <li>2007/10 - 2010/07：厦门理工，动漫设计 / 本科。</li>
+              <li>2019/07 - 2021/09：重庆大学，工商管理 / 本科。</li>
+              <li>2021/11 - 2023/06：伦敦城市大学，工商管理 / 研究生。</li>
+            </ul>
+          </div>
+          <div class="resume__col">
+            <h3 class="resume__h">求职意向</h3>
+            <ul class="resume__list">
+              <li>3D 美术主美 / 资深 Unity 地编设计师 / UE 地编设计师 / AIGC 美术设计师。</li>
+              <li>复合型美术技术能力，覆盖场景美术、引擎地编、AIGC 创作和智能 Agent 落地。</li>
+            </ul>
+          </div>
+        </div>
+        <a class="btn btn--primary" href="assets/resume.pdf" download>下载简历 PDF</a>
+      </div>
+    </section>
+
+    <!-- 联系我 -->
+    <section class="section section--alt" id="contact">
+      <div class="wrap contact">
+        <h2 class="section__title">联系我</h2>
+        <p class="contact__text">欢迎合作与交流。</p>
+        <ul class="contact__list">
+          <li><span class="contact__k">邮箱</span><a href="mailto:18659118036@163.com">18659118036@163.com</a></li>
+          <li><span class="contact__k">微信</span><span>18659118036</span></li>
+          <li><span class="contact__k">电话</span><a href="tel:18659118036">18659118036</a></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    © 2024 LEI YONG. All rights reserved.
+  </footer>
+
+  <a class="totop" href="#top" id="toTop" aria-label="回到顶部">↑</a>
+
+  <script src="assets-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
