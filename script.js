@@ -101,7 +101,8 @@ function getBilibiliEmbedUrl(url, autoplay = false) {
   return '';
 }
 
-function getSceneBilibiliLink(order) {
+function getSceneBilibiliLink(order, hasLocalMedia = false) {
+  if (hasLocalMedia) return '';
   return window.SCENE_BILIBILI_LINKS?.[order] || window.SCENE_BILIBILI_LINKS?.[String(order)] || '';
 }
 
@@ -233,7 +234,7 @@ function getWorks(kind) {
     .sort((a, b) => a.order - b.order)
     .map(work => {
       const detail = work.kind === 'scene' ? sceneDetails[work.order] || sceneDetails[String(work.order)] : null;
-      const bilibiliUrl = work.kind === 'scene' ? getSceneBilibiliLink(work.order) : '';
+      const bilibiliUrl = work.kind === 'scene' ? getSceneBilibiliLink(work.order, work.media.length > 0) : '';
       return {
         ...work,
         title: detail?.title || work.title,

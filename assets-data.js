@@ -67,25 +67,30 @@ window.ASSET_FILES = [
 ];
 
 window.SCENE_BILIBILI_LINKS = {
-  10: 'https://www.bilibili.com/video/BV1bpREYGEG6/',
-  11: 'https://www.bilibili.com/video/BV16cXMYfEZM/',
-  12: 'https://www.bilibili.com/video/BV1qMQVYiEUF/'
+  11: 'https://www.bilibili.com/video/BV1bpREYGEG6/',
+  12: 'https://www.bilibili.com/video/BV16cXMYfEZM/',
+  13: 'https://www.bilibili.com/video/BV1qMQVYiEUF/'
 };
 
 window.SCENE_DETAILS = {
   10: {
+    title: '场景模型',
+    tags: ['Unity', 'PBR', '轻量化', '手绘'],
+    description: '该作品展示轻量化场景模型与手绘/PBR 表现方案，围绕移动端和实时渲染场景需求，对模型结构、材质层次和视觉风格进行统一整理。'
+  },
+  11: {
     title: 'H5小游戏',
     cover: 'assets/场景作品视频/H5小游戏.png',
     tags: ['Unity', '小程序', '特效'],
     description: '该作品应用于 H5 小程序端场景，需兼顾视觉效果与性能优化。在开发过程中，通过突出核心效果和合理规划资源复用，有效控制贴图和顶点数限制，确保场景与特效表现的平衡性。'
   },
-  11: {
+  12: {
     title: 'Unity智能化场景',
     cover: 'assets/场景作品视频/unity智能化场景.png',
     tags: ['Unity', '智能生成', '组件化', 'AI语义'],
     description: '该系列内容展示工作过程中使用的软件与工具，以提高整体开发效率。通过组件化实现智能场景生成工具，用户可以根据需求生成不同大小和类型的场景；未来接入 AI 语义后，可在保证质量的同时生成更多样化的场景，该项目曾获得百度创新突破奖。'
   },
-  12: {
+  13: {
     title: 'H5景区复刻',
     cover: 'assets/场景作品视频/H5景区复刻.png',
     tags: ['Unity', '小程序', '景区复刻', '轻量化'],
