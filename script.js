@@ -117,11 +117,25 @@ function getAssetType(fileName) {
   return 'unknown';
 }
 
-const GITHUB_RELEASE_DOWNLOAD_BASE = 'https://github.com/mtcacoin-cell/Personal-Resume/releases/latest/download/';
+const GITHUB_RELEASE_DOWNLOAD_BASE = 'https://github.com/mtcacoin-cell/Personal-Resume/releases/download/V1.0/';
+const RELEASE_VIDEO_FILES = {
+  'scene-8-静谧草原01（Unity.风格化.PBR.大世界).mp4': 'scene-8-grassland.mp4',
+  'ai-1-深海坠落(Seedance.Unity.展厅).MP4': 'ai-1-deep-sea-fall.mp4',
+  'ai-2-球体视频(Seedance.Unity.展厅).mp4': 'ai-2-sphere-video.mp4',
+  'ai-3-文物复刻(Trip3D.Unity.Zbrush）.mp4': 'ai-3-relic-reconstruction.mp4',
+  'ai-4-文物复刻(Trip3D.Unity.Zbrush）.mp4': 'ai-4-relic-reconstruction.mp4',
+  'ai-5-环物展示(Image2.Unity.RunningHub）.mp4': 'ai-5-object-display.mp4',
+  'ai-6-智能营销Agent08(CodeX.Seedance.Image2.Claude）.mp4': 'ai-6-marketing-agent.mp4',
+  'ai-7-广告植入Agent01(CodeX.Seedance.Image2.Claude）.mp4': 'ai-7-product-placement-agent-01.mp4',
+  'ai-7-广告植入Agent02(CodeX.Seedance.Image2.Claude）.mp4': 'ai-7-product-placement-agent-02.mp4',
+  'ai-8-深海科普视频(Seedance.Image2.Claude）.mp4': 'ai-8-deep-sea-science.mp4',
+  'ai-9-宇宙科普视频(Seedance.Image2.Claude）.mp4': 'ai-9-space-science.mp4'
+};
 
 function getReleaseAssetUrl(fileName) {
   const assetName = fileName.split(/[\\/]/).pop();
-  return GITHUB_RELEASE_DOWNLOAD_BASE + encodeURIComponent(assetName);
+  const releaseName = RELEASE_VIDEO_FILES[assetName] || assetName;
+  return GITHUB_RELEASE_DOWNLOAD_BASE + encodeURIComponent(releaseName);
 }
 
 function getAssetSrc(fileName, type) {
