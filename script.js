@@ -1,3 +1,56 @@
+// 首屏加载进度：只等待关键视觉资源，视频和全部作品在进入页面后继续懒加载
+const siteLoader = document.getElementById('siteLoader');
+const siteLoaderFill = document.getElementById('siteLoaderFill');
+const siteLoaderPercent = document.getElementById('siteLoaderPercent');
+let loaderProgress = 0;
+let loaderDone = false;
+
+function setLoaderProgress(value) {
+  if (!siteLoader || loaderDone) return;
+  loaderProgress = Math.max(loaderProgress, Math.min(100, Math.round(value)));
+  siteLoaderFill.style.width = loaderProgress + '%';
+  const spark = siteLoader.querySelector('.site-loader__spark');
+  if (spark) spark.style.left = loaderProgress + '%';
+  if (siteLoaderPercent) siteLoaderPercent.textContent = loaderProgress + '%';
+}
+
+function finishLoader() {
+  if (!siteLoader || loaderDone) return;
+  setLoaderProgress(100);
+  loaderDone = true;
+  window.setTimeout(() => {
+    siteLoader.classList.add('is-done');
+    document.body.classList.remove('loading');
+  }, 280);
+}
+
+if (siteLoader) {
+  const startedAt = performance.now();
+  const tick = window.setInterval(() => {
+    if (loaderDone) {
+      window.clearInterval(tick);
+      return;
+    }
+    const target = performance.now() - startedAt > 900 ? 82 : 64;
+    setLoaderProgress(loaderProgress + Math.max(1, (target - loaderProgress) * 0.08));
+  }, 90);
+
+  const criticalImages = [...document.querySelectorAll('.hero img,.hero__media img,.about__avatar img')];
+  const criticalWaits = criticalImages.map(img => new Promise(resolve => {
+    if (img.complete) return resolve();
+    img.addEventListener('load', resolve, { once: true });
+    img.addEventListener('error', resolve, { once: true });
+  }));
+
+  Promise.race([
+    Promise.all(criticalWaits),
+    new Promise(resolve => window.setTimeout(resolve, 1500))
+  ]).then(() => {
+    setLoaderProgress(96);
+    window.setTimeout(finishLoader, 220);
+  });
+}
+
 // 移动端菜单
 const toggle = document.getElementById('navToggle');
 const links = document.getElementById('navLinks');
@@ -252,7 +305,7 @@ function mediaMarkup(media, title, active) {
   const activeClass = active ? ' active' : '';
   const coverClass = media.isCover ? ' work-media__cover' : ''; 
   if (media.type === 'video') {
-    return `<video class="work-media__item work-media__video${activeClass}${coverClass}" src="${media.src}" muted loop playsinline preload="metadata" aria-label="${title}"></video>`;
+    return `<video class="work-media__item work-media__video${activeClass}${coverClass}" data-src="${media.src}" muted loop playsinline preload="none" aria-label="${title}"></video>`;
   }
   return `<img class="work-media__item${activeClass}${coverClass}" src="${media.src}" alt="${title}" loading="lazy" onerror="this.classList.add('img--ph')" />`;
 }
@@ -338,11 +391,18 @@ function startWorkCarousels() {
       index = (index + 1) % mediaItems.length;
       mediaItems[index].classList.add('active');
       if (mediaItems[index].tagName === 'VIDEO' && card.matches(':hover')) {
+        loadLazyVideo(mediaItems[index]);
         mediaItems[index].play().catch(() => {});
       }
       dots[index]?.classList.add('active');
     }, 2600);
   });
+}
+
+function loadLazyVideo(videoElement) {
+  if (!videoElement || videoElement.src || !videoElement.dataset.src) return;
+  videoElement.src = videoElement.dataset.src;
+  videoElement.load();
 }
 
 function bindVideoHoverPlayback() {
@@ -353,6 +413,7 @@ function bindVideoHoverPlayback() {
       if (card.classList.contains('work-card--cover-video')) {
         const video = videos[0];
         if (!video) return;
+        loadLazyVideo(video);
         cover?.classList.remove('active');
         video.classList.add('active');
         video.currentTime = 0;
@@ -360,6 +421,7 @@ function bindVideoHoverPlayback() {
         return;
       }
       const activeVideo = videos.find(item => item.classList.contains('active')) || videos[0];
+      loadLazyVideo(activeVideo);
       activeVideo?.play().catch(() => {});
     });
     card.addEventListener('mouseleave', () => {

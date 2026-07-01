@@ -7,7 +7,20 @@
   <meta name="description" content="LEI YONG 个人简介 — Unity / Unreal Engine 场景地编开发，AI 标准化工作流解决方案。" />
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body class="loading">
+  <div class="site-loader" id="siteLoader" role="status" aria-live="polite">
+    <div class="site-loader__inner">
+      <p class="site-loader__eyebrow">作品加载中</p>
+      <h1 class="site-loader__title">LEI YONG</h1>
+      <div class="site-loader__bar" aria-hidden="true">
+        <span class="site-loader__fill" id="siteLoaderFill"></span>
+        <span class="site-loader__spark"></span>
+      </div>
+      <div class="site-loader__percent" id="siteLoaderPercent">0%</div>
+      <p class="site-loader__note">内容有点多哦，稍等加载一下下🥺</p>
+    </div>
+  </div>
+
   <!-- 顶部导航 -->
   <header class="nav" id="top">
     <div class="nav__inner">
@@ -232,7 +245,7 @@
 
   <a class="totop" href="#top" id="toTop" aria-label="回到顶部">↑</a>
 
-  <script src="assets-data.js?v=20260630-3"></script>
-  <script src="script.js?v=20260630-3"></script>
+  <script src="assets-data.js?v=20260630-4"></script>
+  <script src="script.js?v=20260630-4"></script>
 </body>
 </html>
