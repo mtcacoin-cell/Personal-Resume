@@ -28,12 +28,13 @@ function waitForImage(img) {
   });
 }
 
-function waitForVideoMetadata(videoElement, timeout = 1800) {
+function waitForVideoReady(videoElement, timeout = 12000) {
   return new Promise(resolve => {
     if (!videoElement) return resolve({ ok: false, type: 'missing' });
-    if (videoElement.readyState >= 1) return resolve({ ok: true, type: 'cached' });
+    if (videoElement.readyState >= 2) return resolve({ ok: true, type: 'cached' });
     const done = ok => resolve({ ok, type: 'video' });
-    videoElement.addEventListener('loadedmetadata', () => done(true), { once: true });
+    videoElement.addEventListener('loadeddata', () => done(true), { once: true });
+    videoElement.addEventListener('canplay', () => done(true), { once: true });
     videoElement.addEventListener('error', () => done(false), { once: true });
     window.setTimeout(() => done(false), timeout);
   });
@@ -78,7 +79,7 @@ function startLoaderProgress() {
       return;
     }
     const elapsed = performance.now() - loaderStartedAt;
-    const target = elapsed > 5200 ? 92 : elapsed > 2600 ? 82 : 62;
+    const target = elapsed > 9000 ? 94 : elapsed > 5200 ? 84 : elapsed > 2600 ? 68 : 48;
     setLoaderProgress(loaderProgress + Math.max(1, (target - loaderProgress) * 0.075));
   }, 90);
 }
@@ -99,7 +100,7 @@ function collectInitialLoadTargets() {
     ...document.querySelectorAll('#sceneCards img'),
     ...document.querySelectorAll('#aiCards img')
   ].slice(0, 16);
-  const homeVideos = [...document.querySelectorAll('#sceneCards video,#aiCards video')].slice(0, 5);
+  const homeVideos = [...document.querySelectorAll('#sceneCards video,#aiCards video')];
   const heroPoster = video?.poster ? new Image() : null;
   if (heroPoster) heroPoster.src = video.poster;
   homeImages.forEach(img => {
@@ -108,7 +109,7 @@ function collectInitialLoadTargets() {
     img.fetchPriority = 'high';
   });
   homeVideos.forEach(item => {
-    item.preload = 'metadata';
+    item.preload = 'auto';
     item.load();
   });
   return {
@@ -124,11 +125,11 @@ function completeInitialLoading() {
   }
   startLoaderProgress();
   const targets = collectInitialLoadTargets();
-  const minVisible = wait(7000);
-  const imagesReady = waitForImagesReady(targets.images, 11000, 0.86);
+  const minVisible = wait(10000);
+  const imagesReady = waitForImagesReady(targets.images, 16000, 0.92);
   const videosReady = Promise.race([
-    Promise.all(targets.videos.map(item => waitForVideoMetadata(item, 4200))),
-    wait(5200)
+    Promise.all(targets.videos.map(item => waitForVideoReady(item, 18000))),
+    wait(18000)
   ]);
   Promise.all([minVisible, imagesReady, videosReady]).then(() => {
     setLoaderProgress(96);
