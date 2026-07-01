@@ -1,9 +1,11 @@
-// 首屏加载进度：只等待关键视觉资源，视频和全部作品在进入页面后继续懒加载
+// 首屏加载进度：优先等待首屏关键内容；首屏可操作后，后续作品与大视频继续后台加载
 const siteLoader = document.getElementById('siteLoader');
 const siteLoaderFill = document.getElementById('siteLoaderFill');
 const siteLoaderPercent = document.getElementById('siteLoaderPercent');
+const loaderStartedAt = performance.now();
 let loaderProgress = 0;
 let loaderDone = false;
+let loaderTicker = null;
 
 function setLoaderProgress(value) {
   if (!siteLoader || loaderDone) return;
@@ -14,6 +16,43 @@ function setLoaderProgress(value) {
   if (siteLoaderPercent) siteLoaderPercent.textContent = loaderProgress + '%';
 }
 
+function wait(ms) {
+  return new Promise(resolve => window.setTimeout(resolve, ms));
+}
+
+function waitForImage(img) {
+  return new Promise(resolve => {
+    if (!img || img.complete) return resolve();
+    img.addEventListener('load', resolve, { once: true });
+    img.addEventListener('error', resolve, { once: true });
+  });
+}
+
+function waitForVideoMetadata(videoElement, timeout = 1800) {
+  return new Promise(resolve => {
+    if (!videoElement) return resolve();
+    if (videoElement.readyState >= 1) return resolve();
+    const done = () => resolve();
+    videoElement.addEventListener('loadedmetadata', done, { once: true });
+    videoElement.addEventListener('error', done, { once: true });
+    window.setTimeout(done, timeout);
+  });
+}
+
+function startLoaderProgress() {
+  if (!siteLoader || loaderTicker) return;
+  setLoaderProgress(4);
+  loaderTicker = window.setInterval(() => {
+    if (loaderDone) {
+      window.clearInterval(loaderTicker);
+      return;
+    }
+    const elapsed = performance.now() - loaderStartedAt;
+    const target = elapsed > 1600 ? 88 : 72;
+    setLoaderProgress(loaderProgress + Math.max(1, (target - loaderProgress) * 0.075));
+  }, 90);
+}
+
 function finishLoader() {
   if (!siteLoader || loaderDone) return;
   setLoaderProgress(100);
@@ -21,35 +60,42 @@ function finishLoader() {
   window.setTimeout(() => {
     siteLoader.classList.add('is-done');
     document.body.classList.remove('loading');
-  }, 280);
+  }, 360);
 }
 
-if (siteLoader) {
-  const startedAt = performance.now();
-  const tick = window.setInterval(() => {
-    if (loaderDone) {
-      window.clearInterval(tick);
-      return;
-    }
-    const target = performance.now() - startedAt > 900 ? 82 : 64;
-    setLoaderProgress(loaderProgress + Math.max(1, (target - loaderProgress) * 0.08));
-  }, 90);
+function collectInitialLoadTargets() {
+  const visibleImages = [
+    ...document.querySelectorAll('.about__avatar img'),
+    ...document.querySelectorAll('#sceneCards img'),
+    ...document.querySelectorAll('#aiCards img')
+  ].slice(0, 8);
+  const heroPoster = video?.poster ? new Image() : null;
+  if (heroPoster) heroPoster.src = video.poster;
+  const imageWaits = [...visibleImages, heroPoster].filter(Boolean).map(waitForImage);
+  return [
+    ...imageWaits,
+    waitForVideoMetadata(video, 1800)
+  ];
+}
 
-  const criticalImages = [...document.querySelectorAll('.hero img,.hero__media img,.about__avatar img')];
-  const criticalWaits = criticalImages.map(img => new Promise(resolve => {
-    if (img.complete) return resolve();
-    img.addEventListener('load', resolve, { once: true });
-    img.addEventListener('error', resolve, { once: true });
-  }));
-
-  Promise.race([
-    Promise.all(criticalWaits),
-    new Promise(resolve => window.setTimeout(resolve, 1500))
-  ]).then(() => {
+function completeInitialLoading() {
+  if (!siteLoader) {
+    document.body.classList.remove('loading');
+    return;
+  }
+  startLoaderProgress();
+  const minVisible = wait(2200);
+  const smoothEnough = Promise.race([
+    Promise.all(collectInitialLoadTargets()),
+    wait(4200)
+  ]);
+  Promise.all([minVisible, smoothEnough]).then(() => {
     setLoaderProgress(96);
-    window.setTimeout(finishLoader, 220);
+    window.setTimeout(finishLoader, 260);
   });
 }
+
+startLoaderProgress();
 
 // 移动端菜单
 const toggle = document.getElementById('navToggle');
@@ -305,7 +351,7 @@ function mediaMarkup(media, title, active) {
   const activeClass = active ? ' active' : '';
   const coverClass = media.isCover ? ' work-media__cover' : ''; 
   if (media.type === 'video') {
-    return `<video class="work-media__item work-media__video${activeClass}${coverClass}" data-src="${media.src}" muted loop playsinline preload="none" aria-label="${title}"></video>`;
+    return `<video class="work-media__item work-media__video${activeClass}${coverClass}" src="${media.src}" muted loop playsinline preload="metadata" data-background-preload="true" aria-label="${title}"></video>`;
   }
   return `<img class="work-media__item${activeClass}${coverClass}" src="${media.src}" alt="${title}" loading="lazy" onerror="this.classList.add('img--ph')" />`;
 }
@@ -391,7 +437,7 @@ function startWorkCarousels() {
       index = (index + 1) % mediaItems.length;
       mediaItems[index].classList.add('active');
       if (mediaItems[index].tagName === 'VIDEO' && card.matches(':hover')) {
-        loadLazyVideo(mediaItems[index]);
+        mediaItems[index].preload = 'metadata';
         mediaItems[index].play().catch(() => {});
       }
       dots[index]?.classList.add('active');
@@ -399,10 +445,16 @@ function startWorkCarousels() {
   });
 }
 
-function loadLazyVideo(videoElement) {
-  if (!videoElement || videoElement.src || !videoElement.dataset.src) return;
-  videoElement.src = videoElement.dataset.src;
-  videoElement.load();
+function preloadBackgroundVideos() {
+  const videos = [...document.querySelectorAll('video[data-background-preload="true"]')];
+  const preloadOne = index => {
+    const item = videos[index];
+    if (!item) return;
+    item.preload = index < 2 ? 'metadata' : 'none';
+    item.load();
+    window.setTimeout(() => preloadOne(index + 1), index < 2 ? 450 : 900);
+  };
+  window.setTimeout(() => preloadOne(0), 500);
 }
 
 function bindVideoHoverPlayback() {
@@ -413,7 +465,7 @@ function bindVideoHoverPlayback() {
       if (card.classList.contains('work-card--cover-video')) {
         const video = videos[0];
         if (!video) return;
-        loadLazyVideo(video);
+        video.preload = 'metadata';
         cover?.classList.remove('active');
         video.classList.add('active');
         video.currentTime = 0;
@@ -421,7 +473,7 @@ function bindVideoHoverPlayback() {
         return;
       }
       const activeVideo = videos.find(item => item.classList.contains('active')) || videos[0];
-      loadLazyVideo(activeVideo);
+      if (activeVideo) activeVideo.preload = 'metadata';
       activeVideo?.play().catch(() => {});
     });
     card.addEventListener('mouseleave', () => {
@@ -641,6 +693,8 @@ hydrateBilibiliCovers();
 startWorkCarousels();
 bindVideoHoverPlayback();
 bindWorkCardModal();
+completeInitialLoading();
+preloadBackgroundVideos();
 
 // 背景空白区域樱花花瓣拖尾：canvas 粒子层，不影响点击和阅读
 const petalCanvas = document.createElement('canvas');
