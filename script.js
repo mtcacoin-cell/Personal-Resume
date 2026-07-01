@@ -68,13 +68,19 @@ function collectInitialLoadTargets() {
     ...document.querySelectorAll('.about__avatar img'),
     ...document.querySelectorAll('#sceneCards img'),
     ...document.querySelectorAll('#aiCards img')
-  ].slice(0, 8);
+  ].slice(0, 10);
+  const homeVideos = [...document.querySelectorAll('#sceneCards video,#aiCards video')].slice(0, 4);
   const heroPoster = video?.poster ? new Image() : null;
   if (heroPoster) heroPoster.src = video.poster;
+  homeVideos.forEach(item => {
+    item.preload = 'metadata';
+    item.load();
+  });
   const imageWaits = [...visibleImages, heroPoster].filter(Boolean).map(waitForImage);
   return [
     ...imageWaits,
-    waitForVideoMetadata(video, 1800)
+    waitForVideoMetadata(video, 2600),
+    ...homeVideos.map(item => waitForVideoMetadata(item, 2600))
   ];
 }
 
@@ -84,10 +90,10 @@ function completeInitialLoading() {
     return;
   }
   startLoaderProgress();
-  const minVisible = wait(2200);
+  const minVisible = wait(5000);
   const smoothEnough = Promise.race([
     Promise.all(collectInitialLoadTargets()),
-    wait(4200)
+    wait(5000)
   ]);
   Promise.all([minVisible, smoothEnough]).then(() => {
     setLoaderProgress(96);
