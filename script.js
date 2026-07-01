@@ -2,13 +2,11 @@
 const siteLoader = document.getElementById('siteLoader');
 const siteLoaderFill = document.getElementById('siteLoaderFill');
 const siteLoaderPercent = document.getElementById('siteLoaderPercent');
-const loaderStartedAt = performance.now();
 let loaderProgress = 0;
 let loaderDone = false;
-let loaderTicker = null;
 
-function setLoaderProgress(value) {
-  if (!siteLoader || loaderDone) return;
+function setLoaderProgress(value, force = false) {
+  if (!siteLoader || (loaderDone && !force)) return;
   loaderProgress = Math.max(loaderProgress, Math.min(100, Math.round(value)));
   siteLoaderFill.style.width = loaderProgress + '%';
   const spark = siteLoader.querySelector('.site-loader__spark');
@@ -16,125 +14,79 @@ function setLoaderProgress(value) {
   if (siteLoaderPercent) siteLoaderPercent.textContent = loaderProgress + '%';
 }
 
-function wait(ms) {
-  return new Promise(resolve => window.setTimeout(resolve, ms));
+function getMediaWeight(element) {
+  if (!element) return 1;
+  return element.tagName === 'VIDEO' ? 3 : 1;
 }
 
-function waitForImage(img) {
+function waitForInitialResource(element, onDone) {
   return new Promise(resolve => {
-    if (!img || img.complete) return resolve();
-    img.addEventListener('load', resolve, { once: true });
-    img.addEventListener('error', resolve, { once: true });
-  });
-}
-
-function waitForVideoReady(videoElement, timeout = 12000) {
-  return new Promise(resolve => {
-    if (!videoElement) return resolve({ ok: false, type: 'missing' });
-    if (videoElement.readyState >= 2) return resolve({ ok: true, type: 'cached' });
-    const done = ok => resolve({ ok, type: 'video' });
-    videoElement.addEventListener('loadeddata', () => done(true), { once: true });
-    videoElement.addEventListener('canplay', () => done(true), { once: true });
-    videoElement.addEventListener('error', () => done(false), { once: true });
-    window.setTimeout(() => done(false), timeout);
-  });
-}
-
-function waitForImagesReady(images, timeout = 9000, requiredRatio = 0.82) {
-  const items = images.filter(Boolean);
-  if (!items.length) return Promise.resolve({ loaded: 0, total: 0, ready: true });
-  let loaded = items.filter(img => img.complete && img.naturalWidth > 0).length;
-  return new Promise(resolve => {
-    const done = () => {
-      const ready = loaded / items.length >= requiredRatio;
-      resolve({ loaded, total: items.length, ready });
+    const finish = ok => {
+      if (!ok) return;
+      onDone?.(element, ok);
+      resolve({ element, ok });
     };
-    const timer = window.setTimeout(done, timeout);
-    const check = () => {
-      loaded += 1;
-      setLoaderProgress(58 + Math.min(30, Math.round((loaded / items.length) * 30)));
-      if (loaded / items.length >= requiredRatio) {
-        window.clearTimeout(timer);
-        done();
-      }
-    };
-    items.forEach(img => {
-      if (img.complete) return;
-      img.addEventListener('load', check, { once: true });
-      img.addEventListener('error', check, { once: true });
-    });
-    if (loaded / items.length >= requiredRatio) {
-      window.clearTimeout(timer);
-      done();
+    if (!element) return;
+    if (element.tagName === 'VIDEO') {
+      element.preload = 'auto';
+      element.load();
+      if (element.readyState >= 2) return finish(true);
+      element.addEventListener('loadeddata', () => finish(true), { once: true });
+      element.addEventListener('canplay', () => finish(true), { once: true });
+      element.addEventListener('error', () => console.warn('首屏视频加载失败，Loading 将继续等待：', element.currentSrc || element.src), { once: true });
+      return;
     }
+    element.loading = 'eager';
+    element.decoding = 'async';
+    element.fetchPriority = 'high';
+    if (element.complete && element.naturalWidth > 0) return finish(true);
+    element.addEventListener('load', () => finish(true), { once: true });
+    element.addEventListener('error', () => console.warn('首屏图片加载失败，Loading 将继续等待：', element.currentSrc || element.src), { once: true });
   });
 }
 
 function startLoaderProgress() {
-  if (!siteLoader || loaderTicker) return;
-  setLoaderProgress(4);
-  loaderTicker = window.setInterval(() => {
-    if (loaderDone) {
-      window.clearInterval(loaderTicker);
-      return;
-    }
-    const elapsed = performance.now() - loaderStartedAt;
-    const target = elapsed > 9000 ? 94 : elapsed > 5200 ? 84 : elapsed > 2600 ? 68 : 48;
-    setLoaderProgress(loaderProgress + Math.max(1, (target - loaderProgress) * 0.075));
-  }, 90);
+  if (!siteLoader) return;
+  setLoaderProgress(0);
 }
 
 function finishLoader() {
   if (!siteLoader || loaderDone) return;
-  setLoaderProgress(100);
+  setLoaderProgress(100, true);
   loaderDone = true;
   window.setTimeout(() => {
     siteLoader.classList.add('is-done');
     document.body.classList.remove('loading');
-  }, 360);
+    window.setTimeout(preloadBackgroundMedia, 700);
+  }, 420);
 }
 
 function collectInitialLoadTargets() {
+  const homeSection = document.querySelector('.home-page') || document;
   const homeImages = [
-    ...document.querySelectorAll('.about__avatar img'),
-    ...document.querySelectorAll('#sceneCards img'),
-    ...document.querySelectorAll('#aiCards img')
-  ].slice(0, 16);
-  const homeVideos = [...document.querySelectorAll('#sceneCards video,#aiCards video')];
-  const heroPoster = video?.poster ? new Image() : null;
-  if (heroPoster) heroPoster.src = video.poster;
-  homeImages.forEach(img => {
-    img.loading = 'eager';
-    img.decoding = 'async';
-    img.fetchPriority = 'high';
-  });
-  homeVideos.forEach(item => {
-    item.preload = 'auto';
-    item.load();
-  });
-  return {
-    images: [...homeImages, heroPoster].filter(Boolean),
-    videos: [video, ...homeVideos].filter(Boolean)
-  };
+    ...homeSection.querySelectorAll('.about__avatar img'),
+    ...homeSection.querySelectorAll('#sceneCards img'),
+    ...homeSection.querySelectorAll('#aiCards img')
+  ];
+  const homeVideos = [...homeSection.querySelectorAll('#sceneCards video,#aiCards video')];
+  return [...homeImages, video, ...homeVideos].filter(Boolean);
 }
 
 function completeInitialLoading() {
   if (!siteLoader) {
     document.body.classList.remove('loading');
+    window.setTimeout(preloadBackgroundMedia, 700);
     return;
   }
   startLoaderProgress();
-  const targets = collectInitialLoadTargets();
-  const minVisible = wait(10000);
-  const imagesReady = waitForImagesReady(targets.images, 16000, 0.92);
-  const videosReady = Promise.race([
-    Promise.all(targets.videos.map(item => waitForVideoReady(item, 18000))),
-    wait(18000)
-  ]);
-  Promise.all([minVisible, imagesReady, videosReady]).then(() => {
-    setLoaderProgress(96);
-    window.setTimeout(finishLoader, 420);
-  });
+  const resources = collectInitialLoadTargets();
+  const totalWeight = resources.reduce((sum, item) => sum + getMediaWeight(item), 0) || 1;
+  let loadedWeight = 0;
+  const markDone = item => {
+    loadedWeight += getMediaWeight(item);
+    setLoaderProgress((loadedWeight / totalWeight) * 100);
+  };
+  Promise.all(resources.map(item => waitForInitialResource(item, markDone))).then(finishLoader);
 }
 
 startLoaderProgress();
@@ -389,13 +341,17 @@ function getWorks(kind) {
     });
 }
 
-function mediaMarkup(media, title, active) {
+function mediaMarkup(media, title, active, priority = 'background') {
   const activeClass = active ? ' active' : '';
   const coverClass = media.isCover ? ' work-media__cover' : ''; 
   if (media.type === 'video') {
-    return `<video class="work-media__item work-media__video${activeClass}${coverClass}" src="${media.src}" muted loop playsinline preload="metadata" data-background-preload="true" aria-label="${title}"></video>`;
+    const preload = priority === 'initial' ? 'auto' : 'none';
+    const dataAttr = priority === 'initial' ? 'data-initial-media="true"' : 'data-background-preload="true"';
+    return `<video class="work-media__item work-media__video${activeClass}${coverClass}" src="${media.src}" muted loop playsinline preload="${preload}" ${dataAttr} aria-label="${title}"></video>`;
   }
-  return `<img class="work-media__item${activeClass}${coverClass}" src="${media.src}" alt="${title}" loading="lazy" onerror="this.classList.add('img--ph')" />`;
+  const loading = priority === 'initial' ? 'eager' : 'lazy';
+  const fetchPriority = priority === 'initial' ? ' fetchpriority="high"' : '';
+  return `<img class="work-media__item${activeClass}${coverClass}" src="${media.src}" alt="${title}" loading="${loading}" decoding="async"${fetchPriority} onerror="this.classList.add('img--ph')" />`;
 }
 
 function getFeaturedSceneRank(work) {
@@ -427,7 +383,7 @@ function renderWorkCards(kind, containerId, metaLabel, limit, sortMode) {
       ? [{ src: work.cover, type: 'image', isCover: true }, ...work.media.filter(item => item.type === 'video')]
       : work.media;
     const media = previewMedia.length
-      ? previewMedia.map((item, index) => mediaMarkup(item, work.title, index === 0)).join('')
+      ? previewMedia.map((item, index) => mediaMarkup(item, work.title, index === 0, limit ? 'initial' : 'background')).join('')
       : `<div class="work-media__item work-media__placeholder work-media__bilibili-cover active" data-bvid="${getBilibiliBvid(work.bilibiliUrl)}"><span>B站视频展示</span></div>`;
     const dots = previewMedia.length > 1 && !hasVideoCover ? `
       <div class="scene-carousel__dots">
@@ -487,16 +443,28 @@ function startWorkCarousels() {
   });
 }
 
-function preloadBackgroundVideos() {
+function preloadBackgroundMedia() {
+  const lazyImages = [...document.querySelectorAll('img[loading="lazy"]')];
   const videos = [...document.querySelectorAll('video[data-background-preload="true"]')];
-  const preloadOne = index => {
+  const preloadImages = index => {
+    const item = lazyImages[index];
+    if (!item) return;
+    item.loading = 'eager';
+    if (!item.complete) {
+      const img = new Image();
+      img.src = item.currentSrc || item.src;
+    }
+    window.setTimeout(() => preloadImages(index + 1), 180);
+  };
+  const preloadVideos = index => {
     const item = videos[index];
     if (!item) return;
     item.preload = index < 2 ? 'metadata' : 'none';
     item.load();
-    window.setTimeout(() => preloadOne(index + 1), index < 2 ? 450 : 900);
+    window.setTimeout(() => preloadVideos(index + 1), index < 2 ? 450 : 900);
   };
-  window.setTimeout(() => preloadOne(0), loaderDone ? 900 : 7600);
+  preloadImages(0);
+  window.setTimeout(() => preloadVideos(0), 900);
 }
 
 function bindVideoHoverPlayback() {
@@ -736,7 +704,6 @@ startWorkCarousels();
 bindVideoHoverPlayback();
 bindWorkCardModal();
 completeInitialLoading();
-preloadBackgroundVideos();
 
 // 背景空白区域樱花花瓣拖尾：canvas 粒子层，不影响点击和阅读
 const petalCanvas = document.createElement('canvas');
