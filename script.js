@@ -22,28 +22,31 @@ function getMediaWeight(element) {
 function waitForInitialResource(element, onDone) {
   return new Promise(resolve => {
     let settled = false;
-    const finish = ok => {
-      if (settled || !ok) return;
+    const finish = (ok, timedOut = false) => {
+      if (settled) return;
       settled = true;
-      onDone?.(element, ok);
-      resolve({ element, ok });
+      onDone?.(element, ok, timedOut);
+      resolve({ element, ok, timedOut });
     };
-    if (!element) return;
+    if (!element) return finish(false, true);
     if (element.tagName === 'VIDEO') {
-      element.preload = 'auto';
+      element.preload = 'metadata';
       element.load();
-      if (element.readyState >= 2) return finish(true);
-      element.addEventListener('loadeddata', () => finish(true), { once: true });
-      element.addEventListener('canplay', () => finish(true), { once: true });
-      element.addEventListener('error', () => console.warn('首屏视频加载失败，Loading 将继续等待：', element.currentSrc || element.src), { once: true });
+      if (element.readyState >= 1) return finish(true, false);
+      element.addEventListener('loadedmetadata', () => finish(true, false), { once: true });
+      element.addEventListener('loadeddata', () => finish(true, false), { once: true });
+      element.addEventListener('canplay', () => finish(true, false), { once: true });
+      element.addEventListener('error', () => finish(false, true), { once: true });
+      window.setTimeout(() => finish(false, true), 6500);
       return;
     }
     element.loading = 'eager';
     element.decoding = 'async';
     element.fetchPriority = 'high';
-    if (element.complete && element.naturalWidth > 0) return finish(true);
-    element.addEventListener('load', () => finish(true), { once: true });
-    element.addEventListener('error', () => console.warn('首屏图片加载失败，Loading 将继续等待：', element.currentSrc || element.src), { once: true });
+    if (element.complete && element.naturalWidth > 0) return finish(true, false);
+    element.addEventListener('load', () => finish(true, false), { once: true });
+    element.addEventListener('error', () => finish(false, true), { once: true });
+    window.setTimeout(() => finish(false, true), 6500);
   });
 }
 
@@ -85,14 +88,22 @@ function completeInitialLoading() {
   const totalWeight = resources.reduce((sum, item) => sum + getMediaWeight(item), 0) || 1;
   const loadedResources = new WeakSet();
   let loadedWeight = 0;
-  const markDone = item => {
-    if (!item || loadedResources.has(item)) return;
-    loadedResources.add(item);
-    loadedWeight += getMediaWeight(item);
-    const realProgress = (loadedWeight / totalWeight) * 100;
-    setLoaderProgress(Math.min(realProgress, 99));
+  let completed = 0;
+  const markDone = (item, ok) => {
+    completed += 1;
+    if (item && !loadedResources.has(item)) {
+      loadedResources.add(item);
+      loadedWeight += getMediaWeight(item);
+    }
+    const weightProgress = (loadedWeight / totalWeight) * 100;
+    const countProgress = (completed / resources.length) * 100;
+    const realProgress = ok ? Math.max(weightProgress, countProgress) : countProgress;
+    setLoaderProgress(Math.min(realProgress, 96));
   };
-  Promise.all(resources.map(item => waitForInitialResource(item, markDone))).then(finishLoader);
+  const minVisible = new Promise(resolve => window.setTimeout(resolve, 3200));
+  const resourceGate = Promise.all(resources.map(item => waitForInitialResource(item, markDone)));
+  const maxVisible = new Promise(resolve => window.setTimeout(resolve, 7600));
+  Promise.all([minVisible, Promise.race([resourceGate, maxVisible])]).then(finishLoader);
 }
 
 startLoaderProgress();
@@ -351,7 +362,7 @@ function mediaMarkup(media, title, active, priority = 'background') {
   const activeClass = active ? ' active' : '';
   const coverClass = media.isCover ? ' work-media__cover' : ''; 
   if (media.type === 'video') {
-    const preload = priority === 'initial' ? 'auto' : 'none';
+    const preload = priority === 'initial' ? 'metadata' : 'none';
     const dataAttr = priority === 'initial' ? 'data-initial-media="true"' : 'data-background-preload="true"';
     return `<video class="work-media__item work-media__video${activeClass}${coverClass}" src="${media.src}" muted loop playsinline preload="${preload}" ${dataAttr} aria-label="${title}"></video>`;
   }
