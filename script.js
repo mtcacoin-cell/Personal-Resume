@@ -21,8 +21,10 @@ function getMediaWeight(element) {
 
 function waitForInitialResource(element, onDone) {
   return new Promise(resolve => {
+    let settled = false;
     const finish = ok => {
-      if (!ok) return;
+      if (settled || !ok) return;
+      settled = true;
       onDone?.(element, ok);
       resolve({ element, ok });
     };
@@ -81,10 +83,14 @@ function completeInitialLoading() {
   startLoaderProgress();
   const resources = collectInitialLoadTargets();
   const totalWeight = resources.reduce((sum, item) => sum + getMediaWeight(item), 0) || 1;
+  const loadedResources = new WeakSet();
   let loadedWeight = 0;
   const markDone = item => {
+    if (!item || loadedResources.has(item)) return;
+    loadedResources.add(item);
     loadedWeight += getMediaWeight(item);
-    setLoaderProgress((loadedWeight / totalWeight) * 100);
+    const realProgress = (loadedWeight / totalWeight) * 100;
+    setLoaderProgress(Math.min(realProgress, 99));
   };
   Promise.all(resources.map(item => waitForInitialResource(item, markDone))).then(finishLoader);
 }
