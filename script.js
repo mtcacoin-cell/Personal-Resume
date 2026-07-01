@@ -37,7 +37,7 @@ function waitForInitialResource(element, onDone) {
       element.addEventListener('loadeddata', () => finish(true, false), { once: true });
       element.addEventListener('canplay', () => finish(true, false), { once: true });
       element.addEventListener('error', () => finish(false, true), { once: true });
-      window.setTimeout(() => finish(false, true), 9500);
+      window.setTimeout(() => finish(false, true), 14500);
       return;
     }
     element.loading = 'eager';
@@ -100,9 +100,9 @@ function completeInitialLoading() {
     const realProgress = ok ? Math.max(weightProgress, countProgress) : countProgress;
     setLoaderProgress(Math.min(realProgress, 96));
   };
-  const minVisible = new Promise(resolve => window.setTimeout(resolve, 5000));
+  const minVisible = new Promise(resolve => window.setTimeout(resolve, 10000));
   const resourceGate = Promise.all(resources.map(item => waitForInitialResource(item, markDone)));
-  const maxVisible = new Promise(resolve => window.setTimeout(resolve, 10000));
+  const maxVisible = new Promise(resolve => window.setTimeout(resolve, 15000));
   Promise.all([minVisible, Promise.race([resourceGate, maxVisible])]).then(finishLoader);
 }
 
