@@ -30,12 +30,42 @@ function waitForImage(img) {
 
 function waitForVideoMetadata(videoElement, timeout = 1800) {
   return new Promise(resolve => {
-    if (!videoElement) return resolve();
-    if (videoElement.readyState >= 1) return resolve();
-    const done = () => resolve();
-    videoElement.addEventListener('loadedmetadata', done, { once: true });
-    videoElement.addEventListener('error', done, { once: true });
-    window.setTimeout(done, timeout);
+    if (!videoElement) return resolve({ ok: false, type: 'missing' });
+    if (videoElement.readyState >= 1) return resolve({ ok: true, type: 'cached' });
+    const done = ok => resolve({ ok, type: 'video' });
+    videoElement.addEventListener('loadedmetadata', () => done(true), { once: true });
+    videoElement.addEventListener('error', () => done(false), { once: true });
+    window.setTimeout(() => done(false), timeout);
+  });
+}
+
+function waitForImagesReady(images, timeout = 9000, requiredRatio = 0.82) {
+  const items = images.filter(Boolean);
+  if (!items.length) return Promise.resolve({ loaded: 0, total: 0, ready: true });
+  let loaded = items.filter(img => img.complete && img.naturalWidth > 0).length;
+  return new Promise(resolve => {
+    const done = () => {
+      const ready = loaded / items.length >= requiredRatio;
+      resolve({ loaded, total: items.length, ready });
+    };
+    const timer = window.setTimeout(done, timeout);
+    const check = () => {
+      loaded += 1;
+      setLoaderProgress(58 + Math.min(30, Math.round((loaded / items.length) * 30)));
+      if (loaded / items.length >= requiredRatio) {
+        window.clearTimeout(timer);
+        done();
+      }
+    };
+    items.forEach(img => {
+      if (img.complete) return;
+      img.addEventListener('load', check, { once: true });
+      img.addEventListener('error', check, { once: true });
+    });
+    if (loaded / items.length >= requiredRatio) {
+      window.clearTimeout(timer);
+      done();
+    }
   });
 }
 
@@ -48,7 +78,7 @@ function startLoaderProgress() {
       return;
     }
     const elapsed = performance.now() - loaderStartedAt;
-    const target = elapsed > 1600 ? 88 : 72;
+    const target = elapsed > 5200 ? 92 : elapsed > 2600 ? 82 : 62;
     setLoaderProgress(loaderProgress + Math.max(1, (target - loaderProgress) * 0.075));
   }, 90);
 }
@@ -64,24 +94,27 @@ function finishLoader() {
 }
 
 function collectInitialLoadTargets() {
-  const visibleImages = [
+  const homeImages = [
     ...document.querySelectorAll('.about__avatar img'),
     ...document.querySelectorAll('#sceneCards img'),
     ...document.querySelectorAll('#aiCards img')
-  ].slice(0, 10);
-  const homeVideos = [...document.querySelectorAll('#sceneCards video,#aiCards video')].slice(0, 4);
+  ].slice(0, 16);
+  const homeVideos = [...document.querySelectorAll('#sceneCards video,#aiCards video')].slice(0, 5);
   const heroPoster = video?.poster ? new Image() : null;
   if (heroPoster) heroPoster.src = video.poster;
+  homeImages.forEach(img => {
+    img.loading = 'eager';
+    img.decoding = 'async';
+    img.fetchPriority = 'high';
+  });
   homeVideos.forEach(item => {
     item.preload = 'metadata';
     item.load();
   });
-  const imageWaits = [...visibleImages, heroPoster].filter(Boolean).map(waitForImage);
-  return [
-    ...imageWaits,
-    waitForVideoMetadata(video, 2600),
-    ...homeVideos.map(item => waitForVideoMetadata(item, 2600))
-  ];
+  return {
+    images: [...homeImages, heroPoster].filter(Boolean),
+    videos: [video, ...homeVideos].filter(Boolean)
+  };
 }
 
 function completeInitialLoading() {
@@ -90,14 +123,16 @@ function completeInitialLoading() {
     return;
   }
   startLoaderProgress();
-  const minVisible = wait(5000);
-  const smoothEnough = Promise.race([
-    Promise.all(collectInitialLoadTargets()),
-    wait(5000)
+  const targets = collectInitialLoadTargets();
+  const minVisible = wait(7000);
+  const imagesReady = waitForImagesReady(targets.images, 11000, 0.86);
+  const videosReady = Promise.race([
+    Promise.all(targets.videos.map(item => waitForVideoMetadata(item, 4200))),
+    wait(5200)
   ]);
-  Promise.all([minVisible, smoothEnough]).then(() => {
+  Promise.all([minVisible, imagesReady, videosReady]).then(() => {
     setLoaderProgress(96);
-    window.setTimeout(finishLoader, 260);
+    window.setTimeout(finishLoader, 420);
   });
 }
 
@@ -460,7 +495,7 @@ function preloadBackgroundVideos() {
     item.load();
     window.setTimeout(() => preloadOne(index + 1), index < 2 ? 450 : 900);
   };
-  window.setTimeout(() => preloadOne(0), 500);
+  window.setTimeout(() => preloadOne(0), loaderDone ? 900 : 7600);
 }
 
 function bindVideoHoverPlayback() {
