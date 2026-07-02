@@ -183,7 +183,11 @@ const AI_PROJECT_BACKGROUNDS = {
   '智能营销Agent': '本案例围绕智能营销 Agent 的内容生产流程展开，结合 CodeX、Seedance、Image 2 与 Claude，探索从创意生成、视觉素材到营销表达的自动化协作方式。',
   '广告植入Agent': '本案例围绕商业短剧与视频内容中的广告植入流程展开，结合 CodeX、Seedance、Image 2 与 Claude，探索从商品分析、剧情适配到植入分镜生成的自动化工作流。',
   '深海科普视频': '本案例围绕深海主题科普内容展开，结合 Seedance、Image 2 与 Claude 快速完成知识脚本、视觉生成和视频表达，适合用于科普传播与展示素材验证。',
-  '宇宙科普视频': '本案例围绕宇宙主题科普视频展开，通过多模态 AI 工具协同完成概念设定、画面生成与视频化表达，用于验证科普类短视频的快速生产流程。'
+  '宇宙科普视频': '本案例围绕宇宙主题科普视频展开，通过多模态 AI 工具协同完成概念设定、画面生成与视频化表达，用于验证科普类短视频的快速生产流程。',
+  '千年光影': '本方案依托 Seedance 产出动态视觉素材、Image 工具生成配套图像资源，结合 Unity 遮罩渲染与摄像头实时识别能力，实现手势操控虚拟手电筒光影交互效果。',
+  '光影互动': '项目依托 Image2.0 完成动物图像生成与分层自动拆解，导入 Seedance 制作基础动画素材；再通过 Spine 进行骨骼绑定，系统识别视频动画数据自动生成骨骼动画资源，最终落地集成至 Unity 交互项目。',
+  'VR空间探索': '本项目依托 Image2.0 批量产出配套美术资产，借助 VbCoding 开发实现产品 VR 沉浸式交互探索功能。',
+  '裸眼3D': '依托 Image2.0 联动 Seedance 生成时差三维素材，再经由 C4D 等三维软件完成二次烘焙渲染，输出适配线下落地场景、可直接商用的裸眼 3D 成片。'
 };
 
 function getWorkBackground(work) {
@@ -240,7 +244,11 @@ const RELEASE_VIDEO_FILES = {
   'ai-7-广告植入Agent01(CodeX.Seedance.Image2.Claude）.mp4': 'ai-7-product-placement-agent-01.mp4',
   'ai-7-广告植入Agent02(CodeX.Seedance.Image2.Claude）.mp4': 'ai-7-product-placement-agent-02.mp4',
   'ai-8-深海科普视频(Seedance.Image2.Claude）.mp4': 'ai-8-deep-sea-science.mp4',
-  'ai-9-宇宙科普视频(Seedance.Image2.Claude）.mp4': 'ai-9-space-science.mp4'
+  'ai-9-宇宙科普视频(Seedance.Image2.Claude）.mp4': 'ai-9-space-science.mp4',
+  'ai-10-千年光影(Image2.Unity.Seedance）.mp4': 'ai-10-Millennium Lights.mp4',
+  'ai-11-光影互动(Image2.Unity.Spine.Seedance）.mp4': 'ai-11-Light Shadow Interactive.mp4',
+  'ai-12-VR空间探索(Image2.Unity.Claude）.mp4': 'ai-12-VR-Space.mp4',
+  'ai-13-裸眼3D(Image2.Unity.Seedance.C4d）.mp4': 'ai-13-glasses-free3D.mp4'
 };
 
 function getReleaseAssetUrl(fileName) {

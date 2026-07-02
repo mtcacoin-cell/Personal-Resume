@@ -67,7 +67,11 @@ window.ASSET_FILES = [
   'AI/ai-7-广告植入Agent01(CodeX.Seedance.Image2.Claude）.mp4',
   'AI/ai-7-广告植入Agent02(CodeX.Seedance.Image2.Claude）.mp4',
   'AI/ai-8-深海科普视频(Seedance.Image2.Claude）.mp4',
-  'AI/ai-9-宇宙科普视频(Seedance.Image2.Claude）.mp4'
+  'AI/ai-9-宇宙科普视频(Seedance.Image2.Claude）.mp4',
+  'AI/ai-10-千年光影(Image2.Unity.Seedance）.mp4',
+  'AI/ai-11-光影互动(Image2.Unity.Spine.Seedance）.mp4',
+  'AI/ai-12-VR空间探索(Image2.Unity.Claude）.mp4',
+  'AI/ai-13-裸眼3D(Image2.Unity.Seedance.C4d）.mp4'
 ];
 
 window.SCENE_BILIBILI_LINKS = {
