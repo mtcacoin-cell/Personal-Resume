@@ -5,9 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>作品合集 · LEI YONG</title>
   <meta name="description" content="LEI YONG 作品合集：场景作品、AI 解决案例、视频与图组展示。" />
-  <link rel="stylesheet" href="styles.css?v=20260701-3" />
+  <link rel="stylesheet" href="styles.css?v=20260701-5" />
 </head>
-<body class="subpage">
+<body class="subpage loading">
+  <div class="site-loader" id="siteLoader" role="status" aria-live="polite">
+    <div class="site-loader__inner">
+      <p class="site-loader__eyebrow">作品加载中</p>
+      <h1 class="site-loader__title">LEI YONG</h1>
+      <div class="site-loader__bar" aria-hidden="true">
+        <span class="site-loader__fill" id="siteLoaderFill"></span>
+        <span class="site-loader__spark"></span>
+      </div>
+      <div class="site-loader__percent" id="siteLoaderPercent">0%</div>
+      <p class="site-loader__note">内容有点多哦，稍等加载一下下🥺</p>
+    </div>
+  </div>
+
   <header class="nav" id="top">
     <div class="nav__inner">
       <a class="brand" href="index.html#top">
@@ -31,8 +44,8 @@
         <a href="index.html#intro">个人简介</a>
         <a href="scenes.html#scene-cases" class="active">场景作品</a>
         <a href="scenes.html#ai-cases">AI解决案例</a>
-        <a href="index.html#resume">简历</a>
-        <a href="index.html#contact">联系我们</a>
+        <a href="#resume">简历</a>
+        <a href="#contact">联系我们</a>
       </nav>
       <button class="nav__toggle" id="navToggle" aria-label="菜单">
         <span></span><span></span><span></span>
@@ -74,6 +87,62 @@
         <div class="cards scene-page-grid" id="allAiCaseCards"></div>
       </div>
     </section>
+
+    <section class="section" id="resume">
+      <div class="wrap">
+        <div class="section__head">
+          <h2 class="section__title">简历</h2>
+        </div>
+        <div class="resume">
+          <div class="resume__col">
+            <h3 class="resume__h">工作经历</h3>
+            <ul class="resume__list">
+              <li>2022/11 - 至今：百度 TA组 & 地编，统筹外包管理、美术质量把控、业务对接与团队协作。</li>
+              <li>2020/09 - 2022/02：上海完美时空 3D地编组长，负责 PBR 流程、外包需求、场景标杆与性能优化。</li>
+              <li>2018/11 - 2020/08：上海方趣科技 3D主美，负责团队组建、流程管理和核心场景编辑。</li>
+              <li>2010/07 - 2018/04：IGG / 心动网络，参与多款 2.5D、低模手游、SLG 与沙盒项目场景制作。</li>
+            </ul>
+          </div>
+          <div class="resume__col">
+            <h3 class="resume__h">擅长方向</h3>
+            <ul class="resume__list">
+              <li>PBR 标准化 3D 资产生产流程，独立完成场景建模、材质与贴图输出。</li>
+              <li>Unity 场景地编、运行性能优化、Shader 与多渲染管线场景方案定制。</li>
+              <li>UE5 地形工具、材质蓝图、环境灯光系统与完整游戏场景搭建。</li>
+              <li>多模态 AIGC 视频、图像、模型生成，以及智能 Agent 与 WebGL Demo 开发。</li>
+            </ul>
+          </div>
+          <div class="resume__col">
+            <h3 class="resume__h">教育背景</h3>
+            <ul class="resume__list">
+              <li>2007/10 - 2010/07：厦门理工，动漫设计 / 本科。</li>
+              <li>2019/07 - 2021/09：重庆大学，工商管理 / 本科。</li>
+              <li>2021/11 - 2023/06：伦敦城市大学，工商管理 / 研究生。</li>
+            </ul>
+          </div>
+          <div class="resume__col">
+            <h3 class="resume__h">求职意向</h3>
+            <ul class="resume__list">
+              <li>3D 美术主美 / 资深 Unity 地编设计师 / UE 地编设计师 / AIGC 美术设计师。</li>
+              <li>复合型美术技术能力，覆盖场景美术、引擎地编、AIGC 创作和智能 Agent 落地。</li>
+            </ul>
+          </div>
+        </div>
+        <a class="btn btn--primary" href="https://github.com/mtcacoin-cell/Personal-Resume/releases/download/V1.0/2026.pdf" download>下载简历 PDF</a>
+      </div>
+    </section>
+
+    <section class="section section--alt" id="contact">
+      <div class="wrap contact">
+        <h2 class="section__title">联系我</h2>
+        <p class="contact__text">欢迎合作与交流。</p>
+        <ul class="contact__list">
+          <li><span class="contact__k">邮箱</span><a href="mailto:18659118036@163.com">18659118036@163.com</a></li>
+          <li><span class="contact__k">微信</span><span>18659118036</span></li>
+          <li><span class="contact__k">电话</span><a href="tel:18659118036">18659118036</a></li>
+        </ul>
+      </div>
+    </section>
   </main>
 
   <footer class="footer footer--sub">
@@ -87,7 +156,7 @@
     <span class="footer__place">中国 · 北京</span>
   </footer>
 
-  <script src="assets-data.js?v=20260701-3"></script>
-  <script src="script.js?v=20260701-3"></script>
+  <script src="assets-data.js?v=20260701-5"></script>
+  <script src="script.js?v=20260701-5"></script>
 </body>
 </html>

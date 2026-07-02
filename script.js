@@ -19,6 +19,10 @@ function getMediaWeight(element) {
   return element.tagName === 'VIDEO' ? 3 : 1;
 }
 
+function isWorksPage() {
+  return document.body.classList.contains('subpage');
+}
+
 function waitForInitialResource(element, onDone) {
   return new Promise(resolve => {
     let settled = false;
@@ -67,6 +71,18 @@ function finishLoader() {
 }
 
 function collectInitialLoadTargets() {
+  if (isWorksPage()) {
+    const worksImages = [
+      ...document.querySelectorAll('.scene-page-hero img'),
+      ...document.querySelectorAll('#allSceneCards img'),
+      ...document.querySelectorAll('#allAiCaseCards img')
+    ].slice(0, 28);
+    const worksVideos = [
+      ...document.querySelectorAll('#allSceneCards video'),
+      ...document.querySelectorAll('#allAiCaseCards video')
+    ].slice(0, 10);
+    return [...worksImages, ...worksVideos].filter(Boolean);
+  }
   const homeSection = document.querySelector('.home-page') || document;
   const homeImages = [
     ...homeSection.querySelectorAll('.about__avatar img'),
@@ -100,9 +116,11 @@ function completeInitialLoading() {
     const realProgress = ok ? Math.max(weightProgress, countProgress) : countProgress;
     setLoaderProgress(Math.min(realProgress, 96));
   };
-  const minVisible = new Promise(resolve => window.setTimeout(resolve, 10000));
+  const minMs = isWorksPage() ? 4500 : 10000;
+  const maxMs = isWorksPage() ? 9000 : 15000;
+  const minVisible = new Promise(resolve => window.setTimeout(resolve, minMs));
   const resourceGate = Promise.all(resources.map(item => waitForInitialResource(item, markDone)));
-  const maxVisible = new Promise(resolve => window.setTimeout(resolve, 15000));
+  const maxVisible = new Promise(resolve => window.setTimeout(resolve, maxMs));
   Promise.all([minVisible, Promise.race([resourceGate, maxVisible])]).then(finishLoader);
 }
 
@@ -437,8 +455,9 @@ function renderWorkCards(kind, containerId, metaLabel, limit, sortMode) {
     const previewMedia = work.cover
       ? [{ src: work.cover, type: 'image', isCover: true }, ...work.media.filter(item => item.type === 'video')]
       : work.media;
+    const mediaPriority = limit || isWorksPage() ? 'initial' : 'background';
     const media = previewMedia.length
-      ? previewMedia.map((item, index) => mediaMarkup(item, work.title, index === 0, limit ? 'initial' : 'background')).join('')
+      ? previewMedia.map((item, index) => mediaMarkup(item, work.title, index === 0, mediaPriority)).join('')
       : `<div class="work-media__item work-media__placeholder work-media__bilibili-cover active" data-bvid="${getBilibiliBvid(work.bilibiliUrl)}"><span>B站视频展示</span></div>`;
     const dots = previewMedia.length > 1 && !hasVideoCover ? `
       <div class="scene-carousel__dots">
