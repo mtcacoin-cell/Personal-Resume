@@ -52,6 +52,7 @@ window.ASSET_FILES = [
   'AI/ai-3-文物复刻(Trip3D.Unity.Zbrush）.mp4',
   'AI/ai-4-文物复刻封面.png',
   'AI/ai-4-文物复刻(Trip3D.Unity.Zbrush）.mp4',
+  'AI/ai-5-环物展示封面.png',
   'AI/ai-5-环物展示(Image2.Unity.RunningHub）.mp4',
   'AI/ai-6-智能营销Agent(CodeX.Seedance.Image2.Claude）.png',
   'AI/ai-6-智能营销Agent01(CodeX.Seedance.Image2.Claude）.png',
@@ -68,9 +69,13 @@ window.ASSET_FILES = [
   'AI/ai-7-广告植入Agent02(CodeX.Seedance.Image2.Claude）.mp4',
   'AI/ai-8-深海科普视频(Seedance.Image2.Claude）.mp4',
   'AI/ai-9-宇宙科普视频(Seedance.Image2.Claude）.mp4',
+  'AI/千年光影封面.png',
   'AI/ai-10-千年光影(Image2.Unity.Seedance）.mp4',
+  'AI/光影互动封面.png',
   'AI/ai-11-光影互动(Image2.Unity.Spine.Seedance）.mp4',
+  'AI/VR探索空间封面.png',
   'AI/ai-12-VR空间探索(Image2.Unity.Claude）.mp4',
+  'AI/裸眼3D封面.png',
   'AI/ai-13-裸眼3D(Image2.Unity.Seedance.C4d）.mp4'
 ];
 

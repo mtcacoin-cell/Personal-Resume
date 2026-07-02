@@ -175,6 +175,10 @@ video?.querySelector('source')?.addEventListener('error', () => {
 const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
 const VIDEO_EXTENSIONS = ['mp4', 'webm', 'mov'];
 
+const AI_COVER_TITLE_ALIASES = {
+  'VR探索空间': 'VR空间探索'
+};
+
 const AI_PROJECT_BACKGROUNDS = {
   '深海坠落': '本案例围绕“深海坠落”的沉浸式视觉体验展开，目标是在较短周期内生成具有冲击力的动态视觉内容，用于展示、概念验证或宣传片素材测试。传统方式需要较高的三维制作、流体模拟与后期合成成本，因此本案例尝试通过 AI 生成视频与实时场景工具结合，快速完成视觉探索。',
   '球体视频': '本案例以抽象球体运动与展厅空间展示为核心，探索 AI 视频生成在产品视觉、空间氛围和动态展示中的快速应用，适合用于视觉风格预研与展示素材验证。',
@@ -285,6 +289,22 @@ function parseWorkAsset(fileName) {
     };
   }
 
+  const aiCoverByTitleMatch = nameWithoutExt.match(/^(.+)封面$/);
+  if (aiCoverByTitleMatch && fileName.includes('AI/')) {
+    const rawTitle = aiCoverByTitleMatch[1].trim();
+    const title = AI_COVER_TITLE_ALIASES[rawTitle] || rawTitle;
+    return {
+      kind: 'ai',
+      order: null,
+      title,
+      sequence: 0,
+      tags: [],
+      type,
+      src: getAssetSrc(fileName, type),
+      isCover: true
+    };
+  }
+
   const match = nameWithoutExt.match(/^(scene|ai)-(\d+)-(.+)[（(]([^）)]+)[）)]$/);
   if (!match) return null;
 
@@ -308,8 +328,13 @@ function parseWorkAsset(fileName) {
 function getWorks(kind) {
   const files = Array.isArray(window.ASSET_FILES) ? window.ASSET_FILES : [];
   const groups = new Map();
+  const pendingCoversByTitle = new Map();
 
   files.map(parseWorkAsset).filter(item => item && item.kind === kind).forEach(item => {
+    if (item.isCover && item.order === null) {
+      pendingCoversByTitle.set(item.title, item.src);
+      return;
+    }
     if (!groups.has(item.order)) {
       groups.set(item.order, {
         kind: item.kind,
@@ -328,6 +353,11 @@ function getWorks(kind) {
     } else {
       group.media.push({ src: item.src, sequence: item.sequence, type: item.type });
     }
+  });
+
+  pendingCoversByTitle.forEach((cover, title) => {
+    const target = [...groups.values()].find(group => group.title === title);
+    if (target && !target.cover) target.cover = cover;
   });
 
   const sceneDetails = window.SCENE_DETAILS || {};
