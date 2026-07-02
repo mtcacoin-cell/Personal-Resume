@@ -21,7 +21,7 @@ body{
     linear-gradient(115deg,rgba(235,243,255,.94) 0%,rgba(255,255,255,.96) 42%,rgba(249,251,255,.96) 100%),
     var(--bg);
 }
-body::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:url("assets/web/页面通用背景.png") center top / 100% 100% no-repeat;opacity:.42}
+body::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:url("assets/web/页面通用背景.jpg") center top / 100% 100% no-repeat;opacity:.42}
 body::after{display:none}
 main,.footer{position:relative;z-index:1}
 body.loading main,body.loading .nav,body.loading .footer,body.loading .totop{opacity:0;pointer-events:none}
@@ -38,7 +38,7 @@ img{display:block;width:100%;height:100%;object-fit:cover}
 
 /* 加载层 */
 .site-loader{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;padding:28px;background:radial-gradient(circle at 50% 36%,rgba(255,255,255,.98),rgba(242,247,255,.96) 48%,rgba(249,251,255,.98));transition:opacity .45s ease,visibility .45s ease}
-.site-loader::before{content:"";position:absolute;inset:0;background:url("assets/web/页面通用背景.png") center/cover no-repeat;opacity:.22;pointer-events:none}
+.site-loader::before{content:"";position:absolute;inset:0;background:url("assets/web/页面通用背景.jpg") center/cover no-repeat;opacity:.22;pointer-events:none}
 .site-loader::after{content:"";position:absolute;left:9%;top:16%;width:78%;height:58%;border:1px solid rgba(31,95,214,.08);border-radius:50%;transform:rotate(-8deg);pointer-events:none}
 .site-loader.is-done{opacity:0;visibility:hidden;pointer-events:none}
 .site-loader__inner{position:relative;z-index:1;width:min(760px,88vw);text-align:center;color:#172a5b}
